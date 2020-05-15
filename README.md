@@ -1,5 +1,9 @@
 # fundamentos
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/NathanMoura/fundamentos/blob/master/LICENSE.txt)
+[![PyPI version](https://badge.fury.io/py/fundamentos.svg)](https://badge.fury.io/py/fundamentos)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/fundamentos.svg)](https://pypi.python.org/pypi/fundamentos/)
+
 Download Bovespa Stock Market fundamentals.
 
 `fundamentos` is a tiny, threaded, package that allows you to quickly download historical fundamentals of the Brazilian Stock Market, both annualy and quarterly.
@@ -86,3 +90,15 @@ For more information about what each function does, use
 ```python
 help(function)
 ```
+
+## Instalation
+
+Install `fundamentos` using pip:
+
+```sh
+$ pip install fundamentos
+```
+
+## License
+
+`fundamentos` is distributed under the **MIT License**. See the [LICENSE.txt](https://github.com/NathanMoura/fundamentos/blob/master/LICENSE.txt) file in the release for details.
