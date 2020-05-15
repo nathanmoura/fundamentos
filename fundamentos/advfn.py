@@ -46,7 +46,7 @@ def get_tickers(char=None):
     baseurl = 'https://br.advfn.com/bolsa-de-valores/bovespa/{}'
     html_src = requests.get(baseurl.format(char)).text
     dfs = pd.read_html(html_src)
-    if len(dfs) != 9 or dfs[0].empty():
+    if len(dfs) != 9 or dfs[0].empty:
         raise DataNotFound('Couldn\'t find any ticker for that character')
     return list(dfs[0].iloc[:, 1])
 
