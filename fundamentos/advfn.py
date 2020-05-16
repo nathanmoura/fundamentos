@@ -139,7 +139,7 @@ def get_fundamentos(ticker, year=None, quarter=None,
         return _dfs
 
     if year > int(date.today().year):
-        raise ValueError(f'Data inválida: {year}')
+        raise ValueError(f'Invalid date: {year}')
 
     str_tri = {
         1: 'primeiro-trimestre', 2: 'segundo-trimestre',
