@@ -28,7 +28,7 @@ $ pip install fundamentos
 
 Get some fundamentals!
 
-From default, the results are grouped by year, but if you want to, you can specify a quarter to download data from. Additionally, if you want to be even more specific, you can specify a year and a quarter.
+From default, the results are grouped by year, but if you want to, you can specify a quarter to download data from. Additionally, if you want to be even more specific, you can specify the year and the quarter from which you want to download.
 
 ```python
 import fundamentos as ftos
@@ -45,21 +45,21 @@ df = ftos.get_fundamentos('ITUB4', quarter=3)
 df = ftos.get_fundamentos('ITUB4', year=2013, quarter=1)
 ```
 
-The output is a `pandas.DataFrame` and its columns are hierarchically ordered by topics, which makes it easier to filter the data. However, if you want a regular index of columns you can specify that by passing `separated=False` as a parameter.
+The output is a `pandas.DataFrame` and its columns are hierarchically ordered by topics, which makes it easier to filter the data. However, if you need a regular index of columns you can specify that by passing `separated=False` as a parameter.
 
 Topics are
 
-```
-Mercado (Market),
-Resultados (Income),
-Patrimônio(Net Worth),
-Caixa (Cash),
-Dívida (Debt),
-Liquidez e Solvência (Solvency and Liquidity),
-Fluxo de Caixa (Cash Flow),
-Investimentos (Investments),
-Dividendos (Dividends)
-```
+
+- Mercado - _Market_
+- Resultados - _Income_
+- Patrimônio - _Net Worth_
+- Caixa - _Cash_
+- Dívida - _Debt_
+- Liquidez e Solvência - _Solvency and Liquidity_
+- Fluxo de Caixa - _Cash Flow_
+- Investimentos - _Investments_
+- Dividendos - _Dividends_
+
 
 So, for example, cash indicators could be accessed separately with
 
@@ -67,7 +67,7 @@ So, for example, cash indicators could be accessed separately with
 df['Caixa']
 ```
 
-**quick tip:** _if you can't understand the acronyms of the indicators you can use `ftos.get_schema`, which is a DataFrame that contains the full name versions of each indicator_
+**quick tip:** _if you can't understand the acronyms of the indicators you can use `ftos.get_schema()`, which is a function that returns a `pandas.DataFrame` with the full name versions of each indicator_
 
 ### The get_tickers function
 
@@ -88,8 +88,6 @@ From default, the results are grouped by year, but if you want to, you can downl
 ```python
 import fundamentos as ftos
 
-# Downloading data from Itaú Unibanco SA
-
 # Downloads all historical balance sheets, annually
 df = ftos.get_balanco('ITUB4')
 
@@ -100,15 +98,13 @@ As with `get_fundamentos`, the output is also a `pandas.DataFrame` with columns 
 
 Topics are
 
-```
-Ativo Total (Total Assets),
-Ativo Circulante (Current Assets),
-Ativo Não Circulante (Non-current Assets),
-Passivo Total (Total Liabilities),
-Passivo Circulante (Current Liabilities),
-Passivo Não Circulante (Non-current Liabilities),
-Patrimônio Líquido (Net Worth)
-```
+- Ativo Total - _Total Assets_
+- Ativo Circulante - _Current Assets_
+- Ativo Não Circulante - _Non-current Assets_
+- Passivo Total - _Total Liabilities_
+- Passivo Circulante - _Current Liabilities_
+- Passivo Não Circulante - _Non-current Liabilities_
+- Patrimônio Líquido - _Net Worth_
 
 ### The get_dre function
 
@@ -118,8 +114,6 @@ The parameters are pretty similar to thoses in `get_balanco`
 
 ```python
 import fundamentos as ftos
-
-# Downloading data from Itaú Unibanco SA
 
 # Downloads all historical income statements, annually
 df = ftos.get_dre('ITUB4')
