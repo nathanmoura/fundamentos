@@ -1,104 +1,70 @@
 import requests
 import pandas as pd
+import json
 from .utils import convert_type, DataNotFound
 from concurrent import futures
 from datetime import date
+from calendar import monthrange
 
 
-def get_tickers(char=None):
-    '''Downloads tickers' codes from ADVFN website
-
-    :Parameters:
-
-    char[chr] (ascii letter or digit):
-        The char corresponding to ADVFN's webpage to download data from.
-        If None, downloads all tickers enlisted on the website.
-        Default is None
-
-    :Raises:
-
-    DataNotFound(IndexError) if it doesn't find any ticker
-    ValueError if char is not None, or an ascii letter or digit
-    '''
-    pages = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    if char is None:
-
-        papeis = []
-        futures_list = []
-        with futures.ThreadPoolExecutor(max_workers=15) as executor:
-            for c in pages:
-                future = executor.submit(get_tickers, c)
-                futures_list.append(future)
-
-        for future in futures_list:
-            try:
-                papeis += future.result()
-            except DataNotFound:
-                continue
-
-        return papeis
-
-    elif len(char) != 1 or not char.upper() in pages:
-        raise ValueError(
-            'Variable char should be an ascii letter, digit or None')
-
-    char = char.upper()
-    baseurl = 'https://br.advfn.com/bolsa-de-valores/bovespa/{}'
-    html_src = requests.get(baseurl.format(char)).text
-    dfs = pd.read_html(html_src)
-    if len(dfs) != 9 or dfs[0].empty:
-        raise DataNotFound('Couldn\'t find any ticker for that character')
-    return list(dfs[0].iloc[:, 1])
+with open('./fundamentos/schema.json') as jsonfile:
+    schema = json.load(jsonfile)
 
 
 def get_fundamentos(ticker, year=None, quarter=None,
-                    dfs=False, reverse=False, threads=True):
-    ''' Get fundamental data for one brazilian stock enlisted on ADVFN website.
+                    separated=True, ascending=True, threads=True):
+    '''Get fundamental data for one brazilian stock listed on ADVFN website.
 
     NOTE: Values are in thousands!
+
+    Also, none of the data is in percentage scale.
 
     :Arguments:
 
     ticker[str]:
         Ticker to download data from
-    year[int] (2005 - today):
+    year[int] (2007 - today):
         Year to download data from. If None, downloads maximum range.
         Default is None
     quarter[int] (1 - 4):
         Quarter to download data from. If None, downloads annual data.
         Default is None.
-    dfs[bool]:
-        If true, the function returns a dict of DataFrames, in which each key is a separated topic of indicators:
-            'valor_de_mercado': market_value,
-            'resultado': result,
-            'patrimonio': net worth,
-            'caixa': cash,
-            'divida': debt,
-            'liquidez_e_solvencia': solvency and liquidy,
-            'fluxo_de_caixa': cash flows,
-            'investimentos': investments,
-            'dividendo': dividends
-        Default is False
-    reverse[bool]:
-        If downloading multiple years, whether they should be sorted reversely inside the DataFrame(s)
-        Default is False
+    separated[bool]:
+        If True, the DataFrame will be hierarchically divided by super columns.
+        Each super column is a different topic of economic indicators
+            \'Mercado\' (Market),
+            \'Resultados\' (Income),
+            \'Patrimônio\'(Net Worth),
+            \'Caixa\' (Cash),
+            \'Dívida\' (Debt),
+            \'Liquidez e Solvência\' (Solvency and Liquidity),
+            \'Fluxo de Caixa\' (Cash Flow),
+            \'Investimentos\' (Investments),
+            \'Dividendos\' (Dividends)
+        Default is True
+    ascending[bool]:
+        If downloading multiple years, whether they should be sorted ascendingly
+         on the DataFrame
+        Default is True
     threads[bool]:
-        Whether it should download data using multiple threads.
-        Default is true [highly recommended]
+        If downloading multiple years, whether to download data using multiple
+         threads.
+        Default is True (highly recommended)
 
     :Raises:
 
     ValueError if the argument year is invalid
-    DataNotFound(IndexError) if there's no data for that specific ticker or year
+    DataNotFound(IndexError) if there's no data available for that specific
+     ticker or year
 
     :Returns:
 
     A pandas DataFrame, if dfs = False
-    or
-    A python dictionary, if dfs = True
     '''
+    ticker = ticker.upper()
+
     if year is None:
-        years = [x for x in range(2005, date.today().year + 1)]
+        years = [x for x in range(2007, date.today().year + 1)]
         annual_dfs = []
 
         # Recursive search
@@ -108,38 +74,31 @@ def get_fundamentos(ticker, year=None, quarter=None,
             with futures.ThreadPoolExecutor(max_workers=15) as executor:
                 for year in years:
                     future = executor.submit(
-                        get_fundamentos, ticker, year, quarter, dfs)
+                        get_fundamentos, ticker, year, quarter, separated)
                     futures_list.append(future)
             for future in futures_list:
                 try:
                     annual_dfs.append(future.result())
-                except DataNotFound:
+                except (DataNotFound, ValueError):
                     continue
         else:
-
             for year in years:
                 try:
                     annual_dfs.append(get_fundamentos(
-                        ticker, year, quarter, dfs))
-                except DataNotFound:
+                        ticker, year, quarter, separated))
+                except (DataNotFound, ValueError):
                     continue
 
-        if not dfs:
-            df = pd.concat(annual_dfs, axis=1)
-            df.dropna(how='all', inplace=True)
-            return df.reindex(sorted(df.columns, reverse=reverse), axis=1)
+        if not annual_dfs:
+            raise DataNotFound(f'Couldn\'t find any data for \'{ticker}\'')
 
-        _dfs = {k: pd.concat([dfs[k] for dfs in annual_dfs], axis=1)
-                for k in annual_dfs[0]}
+        df = pd.concat(annual_dfs)
 
-        for k, df in _dfs.items():
-            _dfs[k] = df.dropna(how='all').reindex(
-                sorted(df.columns, reverse=reverse), axis=1)
-
-        return _dfs
+        return df.sort_index(ascending=ascending)
 
     if year > int(date.today().year):
-        raise ValueError(f'Invalid date: {year}')
+        raise ValueError(
+            f'Year variable ca\'nt be higher than current year: {year}')
 
     str_tri = {
         1: 'primeiro-trimestre', 2: 'segundo-trimestre',
@@ -154,25 +113,44 @@ def get_fundamentos(ticker, year=None, quarter=None,
     _dfs = pd.read_html(html_src, index_col=0, decimal=',', thousands='.')
 
     if len(_dfs) < 9:
-        raise DataNotFound(f'Couldn\'t find any data for {ticker} on {year}')
+        raise DataNotFound(
+            f'Couldn\'t find any data for \'{ticker}\' on {year}')
 
     _dfs = _dfs[:9]
 
     for i, df in enumerate(_dfs):
-        _dfs[i] = df.iloc[:, [0]].applymap(convert_type)
-        _dfs[i].index.name = ticker.upper()
+        # Formating types and dropping entire NaN columns
+        _dfs[i] = df.iloc[:, [0]].T.applymap(convert_type)
+        _dfs[i].dropna(how='all', axis=1, inplace=True)
 
-    if dfs:
-        return {
-            'valor_de_mercado': _dfs[0],
-            'resultado': _dfs[1],
-            'patrimonio': _dfs[2],
-            'caixa': _dfs[3],
-            'divida': _dfs[4],
-            'liquidez_e_solvencia': _dfs[5],
-            'fluxo_de_caixa': _dfs[6],
-            'investimentos': _dfs[7],
-            'dividendo': _dfs[8]
-        }
+        if quarter:
+            # Formating index column to be datetime
+            _dfs[i].index = [f'{monthrange(year, quarter*3)[1]}/{quarter*3}/{x[3:]}'
+                             for x in _dfs[i].index]
+            _dfs[i].index = pd.to_datetime(_dfs[i].index,
+                                           format='%d/%m/%Y')
+        else:
+            # Removing '*' from some years
+            _dfs[i].index = [year if '*' not in year else year[:-2]
+                             for year in _dfs[i].index]
 
-    return pd.concat(_dfs)
+        _dfs[i].columns = [schema[x] for x in _dfs[i].columns]
+        _dfs[i].columns.name = ticker
+        _dfs[i].index.name = 'Data'
+
+    if separated:
+        super_cols = [
+            'Mercado', 'Resultados', 'Patrimônio', 'Caixa', 'Dívida',
+            'Liquidez e Solvência', 'Fluxo de Caixa', 'Investimentos',
+            'Dividendos',
+        ]
+        return pd.concat(_dfs, axis=1, keys=super_cols)
+
+    return pd.concat(_dfs, axis=1)
+
+
+def get_schema():
+    '''Get the schema used to abbreviate columns names on get_fundamentos DataFrame
+    '''
+    return (pd.DataFrame(schema.items(), columns=['Significado', 'Abreviação'])
+            .set_index('Abreviação'))
