@@ -1,20 +1,32 @@
 from distutils.core import setup
 
+# twine check dist/* pra ver se n tem nada de errado
+from os import path
+
+here = path.abspath(path.dirname(__file__))
+
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+
 setup(
     name='fundamentos',
     packages=['fundamentos'],
-    version='1.0',
+    version='1.1',
     license='MIT',
     description='Download Bovespa Stock Market fundamentals with Python.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Nathan de Moura Vieira',
     author_email='nathanmoura194@gmail.com',
     url='https://github.com/NathanMoura/fundamentos',
-    download_url='https://github.com/NathanMoura/fundamentos/archive/v1.0.tar.gz',
+    download_url='https://github.com/NathanMoura/fundamentos/archive/v1.1.tar.gz',
     keywords=['pandas', 'finance', 'fundamentals', 'bovespa'],
     install_requires=[
         'pandas',
         'requests',
-        'lxml'
+        'lxml',
+        'xlrd'
     ],
     classifiers=[
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package

@@ -1,95 +1,17 @@
+
 # fundamentos
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/NathanMoura/fundamentos/blob/master/LICENSE.txt)
 [![PyPI version](https://badge.fury.io/py/fundamentos.svg)](https://badge.fury.io/py/fundamentos)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/fundamentos.svg)](https://pypi.python.org/pypi/fundamentos/)
+[![GitHub stars](https://img.shields.io/github/stars/NathanMoura/fundamentos.svg?style=social&label=Star&maxAge=60)](https://github.com/NathanMoura/fundamentus/)
 
-Download Bovespa Stock Market fundamentals.
 
-`fundamentos` is a tiny, threaded, package that allows you to quickly download historical fundamentals of the Brazilian Stock Market, both annualy and quarterly.
+`fundamentos` is a tiny, threaded, package that allows you to quickly download historical data from the Brazilian Stock Market, both annualy and quarterly.
 
-The default source for searching for historical data is [ADVFN](https://br.advfn.com/bolsa-de-valores/bovespa "ADVFN") but it also features [fundamentus](https://www.fundamentus.com.br/detalhes.php "fundamentus") for current fundamentals.
-
-## Usage
-
-### The get_fundamentos function
-
-The `get_fundamentos` is the main function of the package. From default, it downloads data from advfn
-
-```python
-import fundamentos as fos
-
-# Downloads all historical fundamentals
-# to AmBev SA, annualy
-df = fos.get_fundamentos('ABEV3')
-
-# Downloads all historical fundamentals
-# to Itaú Unibanco SA on third quarters
-df = fos.get_fundamentos('ITUB4', quarter=3)
-
-# Downloads data from first quarter of
-# 2013 to Banco Bradesco
-df = fos.get_fundamentos('BBDC4', year=2013, quarter=1)
-```
-Besides returning a single `pandas.DataFrame` with all the data, it also features returning a python `dictionary` of `DataFrames` in which each key represents a different category of economic indicators, so that they can be accessed separately. Its format should be something like this:
-
-```python
-import fundamentos as ftos
-
-dfs = ftos.get_fundamentos('LREN3', dfs=True)
-print(dfs)
-
-# Expected Output:
-# {
-#     'valor_de_mercado': market_value_df,
-#     'resultado': result_df,
-#     'patrimonio': net_worth_df,
-#     'caixa': cash_df,
-#     'divida': debt_df,
-#     'liquidez_e_solvencia': solvency_and_liquidy_df,
-#     'fluxo_de_caixa': cash_flows_df,
-#     'investimentos': investments_df,
-#     'dividendo': dividends_df
-# }
-```
-So, for example, cash indicators could be printed separately with
-```python
-print(dfs['caixa'])
-```
-
-### The get_tickers function
-
-The `get_tickers` function simply returns a list with all the tickers currently listed on [ADVFN website](https://br.advfn.com/bolsa-de-valores/bovespa/A "advfn tickers").
-
-```python
-import fundamentos as ftos
-
-tickers = ftos.get_tickers()
-```
-
-### The fundamentus module
-
-The `fundamentus` module has the same functions of the main module, but it doesn't feature historical data. The reason why I added this module to the package is because, sometimes, [fundamentus](https://www.fundamentus.com.br/detalhes.php "fundamentus") happens to be more complete than advfn.
-
-In order to use it, you have to import it from the main module
-
-```python
-from fundamentos import fundamentus as ftus
-
-# Downloads fundamentals of Lojas Renner SA
-df = ftus.get_fundamentos('LREN3')
-
-# Downloads tickers currently listed
-# on fundamentus website
-tickers = ftus.get_tickers()
-```
-
-### The python help function
-
-For more information about what each function does, use
-```python
-help(function)
-```
+The sources from where it downloads data are
+- [ADVFN](https://br.advfn.com/bolsa-de-valores/bovespa "ADVFN") for [fundamentals](#the-get_fundamentos-function)
+- [fundamentus](https://www.fundamentus.com.br/detalhes.php "fundamentus") for [balance sheets](#the-get_balanco-function) and [income statements](#the-get_dre-function).
 
 ## Instalation
 
@@ -98,6 +20,122 @@ Install `fundamentos` using pip:
 ```sh
 $ pip install fundamentos
 ```
+
+
+## Quick Start
+
+### The get_fundamentos function
+
+Get some fundamentals!
+
+From default, the results are grouped by year, but if you want to, you can specify a quarter to download data from. Additionally, if you want to be even more specific, you can specify a year and a quarter.
+
+```python
+import fundamentos as ftos
+
+# Downloading data from Itaú Unibanco SA
+
+# Downloads all historical fundamentals, annually
+df = ftos.get_fundamentos('ITUB4')
+
+# Downloads all historical fundamentals on third quarters
+df = ftos.get_fundamentos('ITUB4', quarter=3)
+
+# Downloads fundamentals from first quarter of 2013
+df = ftos.get_fundamentos('ITUB4', year=2013, quarter=1)
+```
+
+The output is a `pandas.DataFrame` and its columns are hierarchically ordered by topics, which makes it easier to filter the data. However, if you want a regular index of columns you can specify that by passing `separated=False` as a parameter.
+
+Topics are
+
+```
+Mercado (Market),
+Resultados (Income),
+Patrimônio(Net Worth),
+Caixa (Cash),
+Dívida (Debt),
+Liquidez e Solvência (Solvency and Liquidity),
+Fluxo de Caixa (Cash Flow),
+Investimentos (Investments),
+Dividendos (Dividends)
+```
+
+So, for example, cash indicators could be accessed separately with
+
+```python
+df['Caixa']
+```
+
+**quick tip:** _if you can't understand the acronyms of the indicators you can use `ftos.get_schema`, which is a DataFrame that contains the full name versions of each indicator_
+
+### The get_tickers function
+
+This function returns a `pandas.DataFrame` with every company listed on the Brazilian Stock Market, their respective corporate names and codes
+
+```python
+import fundamentos as ftos
+
+tickers = ftos.get_tickers()
+```
+
+### The get_balanco function
+
+Get some balance sheets!
+
+From default, the results are grouped by year, but if you want to, you can download them quarterly by using `quarterly=True`
+
+```python
+import fundamentos as ftos
+
+# Downloading data from Itaú Unibanco SA
+
+# Downloads all historical balance sheets, annually
+df = ftos.get_balanco('ITUB4')
+
+# Downloads all historical balance sheets, quarterly
+df = ftos.get_balanco('ITUB4', quarterly=True)
+```
+As with `get_fundamentos`, the output is also a `pandas.DataFrame` with columns hierarchically ordered by topics. You can also deactivate that by passing `separated=False` as an argument.
+
+Topics are
+
+```
+Ativo Total (Total Assets),
+Ativo Circulante (Current Assets),
+Ativo Não Circulante (Non-current Assets),
+Passivo Total (Total Liabilities),
+Passivo Circulante (Current Liabilities),
+Passivo Não Circulante (Non-current Liabilities),
+Patrimônio Líquido (Net Worth)
+```
+
+### The get_dre function
+
+Get some income statements!
+
+The parameters are pretty similar to thoses in `get_balanco`
+
+```python
+import fundamentos as ftos
+
+# Downloading data from Itaú Unibanco SA
+
+# Downloads all historical income statements, annually
+df = ftos.get_dre('ITUB4')
+
+# Downloads all historical income statements, quarterly
+df = ftos.get_dre('ITUB4', quarterly=True)
+```
+
+### The python help function
+
+I tried to be as descriptive as I could on the `docstrings`, so if you need more information about what each function does you can use
+
+```python
+help(function)
+```
+
 
 ## License
 
