@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 # twine check dist/* pra ver se n tem nada de errado
 from os import path
@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='fundamentos',
     packages=['fundamentos'],
-    version='1.1',
+    version='1.2',
     license='MIT',
     description='Download Bovespa Stock Market fundamentals with Python.',
     long_description=long_description,
@@ -20,7 +20,7 @@ setup(
     author='Nathan de Moura Vieira',
     author_email='nathanmoura194@gmail.com',
     url='https://github.com/NathanMoura/fundamentos',
-    download_url='https://github.com/NathanMoura/fundamentos/archive/v1.1.tar.gz',
+    download_url='https://github.com/NathanMoura/fundamentos/archive/v1.2.tar.gz',
     keywords=['pandas', 'finance', 'fundamentals', 'bovespa'],
     install_requires=[
         'pandas',
