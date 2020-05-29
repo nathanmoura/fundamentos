@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/NathanMoura/fundamentos/blob/master/LICENSE.txt)
 [![PyPI version](https://badge.fury.io/py/fundamentos.svg)](https://badge.fury.io/py/fundamentos)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/fundamentos.svg)](https://pypi.python.org/pypi/fundamentos/)
-[![GitHub stars](https://img.shields.io/github/stars/NathanMoura/fundamentos.svg?style=social&label=Star&maxAge=60)](https://github.com/NathanMoura/fundamentus/)
+[![GitHub stars](https://img.shields.io/github/stars/NathanMoura/fundamentos.svg?style=social&label=Star&maxAge=60)](https://github.com/NathanMoura/fundamentos/)
 
 
 `fundamentos` is a tiny, threaded, package that allows you to quickly download historical data from the Brazilian Stock Market, both annualy and quarterly.
