@@ -128,14 +128,27 @@ def get_balanco(ticker, quarterly=False, ascending=True, separated=True):
         super_cols = [
             'Ativo Total',
             'Ativo Circulante',
+            'Ativo Não Circulante',
             'Ativo Realizável a Longo Prazo',
             'Passivo Total',
             'Passivo Circulante',
             'Passivo Não Circulante',
+            'Passivo Exigível a Longo Prazo',
             'Patrimônio Líquido'
         ]
 
         cols = list(df.columns)
+
+        # Handling different balance sheets for banks and other companies
+        if 'Ativo Não Circulante' in cols:
+            super_cols.remove('Ativo Realizável a Longo Prazo')
+        else:
+            super_cols.remove('Ativo Não Circulante')
+
+        if 'Passivo Não Circulante' in cols:
+            super_cols.remove('Passivo Exigível a Longo Prazo')
+        else:
+            super_cols.remove('Passivo Não Circulante')
 
         idxs = [cols.index(x) for x in cols if x in super_cols]
 
@@ -144,15 +157,16 @@ def get_balanco(ticker, quarterly=False, ascending=True, separated=True):
                   else slice(idxs[i], None)
                   for i, _ in enumerate(idxs)]
 
-        super_cols.reverse()
         tuples = []
 
         for s in slices:
-            sup = super_cols.pop()
+            sup = super_cols.pop(0)
 
-            # Renaming this weird super column
+            # Renaming columns to standardize different companies' DataFrames
             if sup == 'Ativo Realizável a Longo Prazo':
                 sup = 'Ativo Não Circulante'
+            if sup == 'Passivo Exigível a Longo Prazo':
+                sup = 'Passivo Não Circulante'
 
             for col in cols[s]:
                 tuples.append((sup, col))
