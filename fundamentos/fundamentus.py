@@ -3,6 +3,8 @@ import xlrd
 import pandas as pd
 import io
 import os
+import string
+import random
 from zipfile import ZipFile
 from .utils import convert_type, DataNotFound
 
@@ -33,13 +35,24 @@ def _get_sheets(ticker, quarterly, ascending):
 
     ticker = ticker.upper()
 
+    # Apparently fundamentus is blocking requests library's standard user-agent
+    # To solve this problem, I'm generating random user-agents
+
+    headers = {
+        'User-Agent': ''.join(
+            random.choices(string.ascii_letters, k=10)
+        )
+    }
+
     r = requests.get('https://www.fundamentus.com.br/balancos.php',
-                     params={'papel': ticker})
+                     params={'papel': ticker},
+                     headers=headers)
 
     SID = r.cookies.values()[0]
 
     response_sheet = requests.get(
-        'https://www.fundamentus.com.br/planilhas.php', params={'SID': SID})
+        'https://www.fundamentus.com.br/planilhas.php',
+        params={'SID': SID}, headers=headers)
 
     if response_sheet.text.startswith('Ativo nao encontrado'):
         raise DataNotFound(
