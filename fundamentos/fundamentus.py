@@ -48,7 +48,7 @@ def _get_sheets(ticker, quarterly, ascending):
                      params={'papel': ticker},
                      headers=headers)
 
-    SID = r.cookies.values()[0]
+    SID = r.cookies.values()[1]
 
     response_sheet = requests.get(
         'https://www.fundamentus.com.br/planilhas.php',
