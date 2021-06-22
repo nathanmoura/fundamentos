@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='fundamentos',
     packages=['fundamentos'],
-    version='1.4',  # Atualizar
+    version='1.5',  # Atualizar
     license='MIT',
     description='Download Bovespa Stock Market fundamentals with Python.',
     long_description=long_description,
@@ -20,7 +20,7 @@ setup(
     author='Nathan de Moura Vieira',
     author_email='nathanmoura194@gmail.com',
     url='https://github.com/NathanMoura/fundamentos',
-    download_url='https://github.com/NathanMoura/fundamentos/archive/v1.4.tar.gz',  # Atualizar
+    download_url='https://github.com/NathanMoura/fundamentos/archive/v1.5.tar.gz',  # Atualizar
     keywords=['pandas', 'finance', 'fundamentals', 'bovespa'],
     install_requires=[
         'pandas',
@@ -47,6 +47,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
 
     ],
 )
