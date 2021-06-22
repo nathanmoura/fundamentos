@@ -86,6 +86,11 @@ def _get_sheets(ticker, quarterly, ascending):
         df.index = pd.to_datetime(
             df.index, format='%d/%m/%Y')
 
+        # Excluding empty columns (usually subtitles)
+        df.dropna(axis=1, how='all', inplace=True)
+        # Filling empty cells with 0
+        df.fillna(0, inplace=True)
+
         if not quarterly:
             rows_to_drop = [x for x in df.index.year
                             if list(df.index.year).count(x) != 4]
