@@ -1,3 +1,6 @@
+import random
+import string
+
 
 class DataNotFound(IndexError):
     pass
@@ -12,3 +15,11 @@ def convert_type(x):
         return float(x)
     except ValueError:
         return None
+
+
+def get_headers():
+    return {
+        'User-Agent': ''.join(
+            random.choices(string.ascii_letters, k=10)
+        )
+    }

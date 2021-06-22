@@ -3,10 +3,8 @@ import xlrd
 import pandas as pd
 import io
 import os
-import string
-import random
 from zipfile import ZipFile
-from .utils import convert_type, DataNotFound
+from .utils import convert_type, DataNotFound, get_headers
 
 
 def get_tickers():
@@ -21,7 +19,7 @@ def get_tickers():
     Razão Social (Corporate Name)
     '''
     html_src = requests.get(
-        'http://fundamentus.com.br/detalhes.php').text
+        'http://fundamentus.com.br/detalhes.php', headers=get_headers()).text
     return pd.read_html(html_src)[0]
 
 
@@ -38,21 +36,15 @@ def _get_sheets(ticker, quarterly, ascending):
     # Apparently fundamentus is blocking requests library's standard user-agent
     # To solve this problem, I'm generating random user-agents
 
-    headers = {
-        'User-Agent': ''.join(
-            random.choices(string.ascii_letters, k=10)
-        )
-    }
-
     r = requests.get('https://www.fundamentus.com.br/balancos.php',
                      params={'papel': ticker},
-                     headers=headers)
+                     headers=get_headers())
 
     SID = r.cookies.values()[0]
 
     response_sheet = requests.get(
         'https://www.fundamentus.com.br/planilhas.php',
-        params={'SID': SID}, headers=headers)
+        params={'SID': SID}, headers=get_headers())
 
     if response_sheet.text.startswith('Ativo nao encontrado'):
         raise DataNotFound(

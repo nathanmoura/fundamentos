@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-from .utils import convert_type, DataNotFound
+from .utils import convert_type, DataNotFound, get_headers
 from concurrent import futures
 from datetime import date
 from calendar import monthrange
@@ -176,7 +176,7 @@ def get_fundamentos(ticker, year=None, quarter=None,
 
     baseurl = 'https://br.advfn.com/bolsa-de-valores/bovespa/{0}/fundamentos/individualizado/{1}/{2}'
     html_src = requests.get(baseurl.format(
-        ticker, year, str_tri[quarter])).text
+        ticker, year, str_tri[quarter]), headers=get_headers()).text
 
     _dfs = pd.read_html(html_src, index_col=0, decimal=',', thousands='.')
 
